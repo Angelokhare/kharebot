@@ -11,12 +11,6 @@ import os #provides ways to access the Operating System and allows us to read th
 
 load_dotenv()
 
-
-
-
-# updater = Updater("5826929844:AAEV4U3fbdXbYrZSpY-5uVMgcPY743Qq5M8",
-#                   use_context=True)
-  
   
 # def start(update: Update, context: CallbackContext):
 #     update.message.reply_text(
@@ -211,4 +205,6 @@ updater.dispatcher.add_handler(MessageHandler(
 # Filters out unknown messages.
 updater.dispatcher.add_handler(MessageHandler(Filters.text, unknown_text))
 
-updater.start_polling()
+if __name__ == '__main__':
+
+  updater.start_polling()
