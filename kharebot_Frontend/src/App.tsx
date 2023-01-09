@@ -18,8 +18,10 @@ export default function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           {/* <Route path="/dashboard" element={<Dashboard />} /> */}
+
           {/* <Route path="/user" element={<UserPage/>} /> */}
-          {/* <Route path="*" element={<ErrorPage />} /> */}
+          <Route path="*" element={<LoginPage />} />
+
         {/* </Route> */}
       </Routes>
     </Router>

@@ -175,6 +175,10 @@ appearance: none;
         border: 2px solid #213f7d
     }
 }
+.visibleClass{
+    margin-top: -0.7vw;
+     margin-bottom: 1vw;
+}
     .visibleClass:hover{
     border-color: #213f7d;
 
@@ -221,6 +225,9 @@ margin-bottom: 1.5vw;
         //  margin-left: 20%; 
       
 }
+.loginEye{
+    width : 1.5vw;
+}
 
 
 // kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                       LoginButton
@@ -254,6 +261,26 @@ margin-bottom: 1.5vw;
     font-family: 'Archivo', sans-serif;
 }
 
+.loginDetails{
+    margin-top: -54%;
+    padding-top: 10%;
+    padding-left: 8%;
+    margin-left:50%; 
+    // height: 100vh;
+    // box-shadow: 0px 15px 90px rgba(0, 0, 0, 0.03);
+    }
+    
+    
+    
+    .loginImage{
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        width: 75%;
+        padding: 15% 1%;
+        -webkit-animation: action 1s infinite  alternate;
+        animation: action 1s infinite  alternate;
+    }
 
 // kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                          SignupButton
 .SignupButton{
@@ -272,26 +299,7 @@ margin-bottom: 1.5vw;
 }
 
 
-.loginDetails{
-margin-top: -54%;
-padding-top: 10%;
-padding-left: 8%;
-margin-left:50%; 
-// height: 100vh;
-// box-shadow: 0px 15px 90px rgba(0, 0, 0, 0.03);
-}
 
-
-
-.loginImage{
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    width: 75%;
-    padding: 15% 1%;
-    -webkit-animation: action 1s infinite  alternate;
-    animation: action 1s infinite  alternate;
-}
 
 
 // kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk         Signup
@@ -369,7 +377,7 @@ margin-left:50%;
 
 @keyframes three {
     0% {
-      transform: rotateZ(0);
+      transform: rotateZ(50deg);
     }
     100% {
       transform: rotateZ(-30deg);
@@ -387,3 +395,275 @@ margin-left:50%;
         font-size: 1.1vw;
     }   
 }
+
+
+@media only screen and (max-width: 850px){
+
+.loginImageCase{
+   display: none;
+}
+.loginDetails{
+    margin-top: 0;
+    padding-top: 2%;
+    padding-left: 15%;
+    padding-right: 15%;
+    margin-left:0%; 
+    // height: 100vh;
+    // box-shadow: 0px 15px 90px rgba(0, 0, 0, 0.03);
+    }
+
+    .loginInput{
+        flex: 1 1 auto;
+        font-weight: 400;
+        /* height: calc(1.5em + 1rem + 2px); */
+        padding: 0.8rem 1rem;
+        margin-bottom: 3%;
+        margin-top: -2%;
+        /* font-size: 1.25rem; */
+        line-height: 1.5;
+        color: #000;
+        background-color: #fff;
+        border: 2px solid rgba(84, 95, 125, 0.15);
+        border-radius: 5px;
+        /* border-radius: .3rem 0 0 .3rem; */
+        outline: 0;
+        width: 95%;
+        font-family: 'Archivo', sans-serif;
+}    
+.passwordTogether{
+    /* display: -webkit-flex; */
+    /* -webkit-flex-wrap: wrap; */
+    display: flex;
+    /* flex-wrap: wrap; */
+    margin-bottom: 1rem;
+     margin-right: -5%;
+    //  margin-left: 20%; 
+  
+}
+.loginEye{
+    width :2.3vw;
+}
+.visibleClass{
+    margin-top: -1.4vw;
+     margin-bottom: 2.2vw;
+}
+
+.headerButton{
+    padding: 0.8rem 1.5rem;
+    background-color: #213f7d;
+    border-radius:12px;
+    font-size: 1.7vw;
+}
+.iconSeparate {
+    display: inline-block;
+    padding: 0;
+    padding-left: 4.5vw;
+}
+.headerLink{
+    font-size: 1.7vw;
+}
+.loginButton{
+    padding: 1.3rem 2rem;
+    // margin-left: auto;
+    margin-right: auto;
+    display: block;
+    border-radius: 8px;
+    color: #fff;
+    width: 103%;
+    font-size: 2vw;
+    cursor: pointer;
+    font-weight: 700;
+    margin-top: 6%;
+    font-family: 'Archivo', sans-serif;
+}
+.loginTittle{
+    font-family: 'Rubik', sans-serif;
+font-size: 5.5vw;
+}
+.LogingWaving{
+    width: 5.5vw;
+}
+.loginDescription{
+ font-size: 2vw;
+ margin-bottom: 6%;
+}
+.loginTitleCase{
+    margin-bottom: -3%;
+
+}
+.NavigationSignup{
+    margin-right: 0;
+    font-size: 1.8vw;
+}
+.forgotPassword{
+    font-size: 1.5vw;
+}
+}
+
+
+
+@media only screen and (max-width: 650px){
+
+    .iconImage{
+        width: 39%;
+    }
+    
+        .loginInput{
+            flex: 1 1 auto;
+            font-weight: 400;
+            /* height: calc(1.5em + 1rem + 2px); */
+            padding: 0.8rem 1rem;
+            margin-bottom: 3%;
+            margin-top: -2%;
+            /* font-size: 1.25rem; */
+            line-height: 1.5;
+            color: #000;
+            background-color: #fff;
+            border: 2px solid rgba(84, 95, 125, 0.15);
+            border-radius: 5px;
+            /* border-radius: .3rem 0 0 .3rem; */
+            outline: 0;
+            width: 95%;
+            font-family: 'Archivo', sans-serif;
+    }    
+    .passwordTogether{
+        /* display: -webkit-flex; */
+        /* -webkit-flex-wrap: wrap; */
+        display: flex;
+        /* flex-wrap: wrap; */
+        margin-bottom: 1rem;
+         margin-right: -5%;
+        //  margin-left: 20%; 
+      
+    }
+    .loginEye{
+        width : 3vw;
+    }
+    .visibleClass{
+        margin-top: -1.4vw;
+         margin-bottom: 2.1vw;
+    }
+    
+    .headerButton{
+        padding: 0.8rem 1.5rem;
+        background-color: #213f7d;
+        border-radius:12px;
+        font-size: 2.2vw;
+    }
+    .iconSeparate {
+        display: inline-block;
+        padding: 0;
+        padding-left: 4.5vw;
+    }
+    .headerLink{
+        font-size: 2.2vw;
+    }
+    .loginTittle{
+        font-family: 'Rubik', sans-serif;
+    font-size: 5.5vw;
+    }
+    .LogingWaving{
+        width: 5.5vw;
+    }
+    .loginDescription{
+     font-size: 2.5vw;
+     margin-bottom: 6%;
+    }
+    .loginTitleCase{
+        margin-bottom: -3%;
+    
+    }
+    .NavigationSignup{
+        margin-right: 0;
+        font-size: 2.5vw;
+    }
+    .forgotPassword{
+        font-size: 1.8vw;
+    }
+    .loginButton{
+        width: 106%;
+        margin-bottom: 3.5vw;
+    }
+    }
+    @media only screen and (max-width: 550px){
+        .visibleClass{
+            margin-top: -1.5vw;
+             margin-bottom: 2.2vw;
+        }
+        .loginButton{
+            width: 106%;
+            padding: 1rem 2rem;
+            font-size: 3vw;
+        }
+        .forgotPassword{
+            font-size: 2.3vw;
+        }
+    
+    }
+
+
+    @media only screen and (max-width: 500px){
+        .loginEye{
+            width : 4vw;
+        }
+        .visibleClass{
+            margin-right: -0.5vw;
+            margin-bottom: 2vw;
+        }
+        .iconImage{
+            width: 41%;
+        }
+
+   
+    }
+
+        @media only screen and (max-width: 490px){  
+ .loginDetails{
+        margin-top: 0;
+        padding-top: 2%;
+        padding-left: 6%;
+        padding-right: 11%; 
+ }
+ .loginButton{
+    width: 106%;
+    padding: 1.2rem 2rem;
+    font-size: 4vw;
+}
+.visibleClass{
+    margin-top: -1.8vw;
+     margin-bottom: 2.8vw;
+}
+        
+    }
+
+
+    @media only screen and (max-width: 400px){  
+    .loginTittle{
+        font-family: 'Rubik', sans-serif;
+    font-size: 7.5vw;
+    }
+    .LogingWaving{
+        width: 7.5vw;
+    }
+    .loginDescription{
+     font-size: 3.5vw;
+     margin-bottom: 6%;
+    }
+    .NavigationSignup{
+        font-size: 3vw;
+    }
+    .forgotPassword{
+        font-size: 3vw;
+    }
+    .loginEye{
+        width : 5vw;
+    }
+    
+    .visibleClass{
+        // margin-top: -1.4vw;
+         margin-bottom: 2.4vw;
+    }
+}
+
+
+
