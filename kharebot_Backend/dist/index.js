@@ -119,6 +119,9 @@ var newUser = new mongoose.Schema({
     apiKey: { type: String},
     apiSecret: { type: String},
     apiPassphrase: { type: String}
+  },
+  transactionPin: {
+    type: String
   }
 })
 
@@ -371,7 +374,7 @@ else{
   })
 })
 
-
+// kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk         BINANCE API CALL
 app.get('/binance', (req, res) => {
 
 
@@ -397,6 +400,7 @@ app.get('/binance', (req, res) => {
 
     }
   if(req.query.id==undefined){
+    if(req.query.removeApi==undefined){
     console.log("kkkkk")
     var binanceApiKey= req.query.binanceApiKey
     var binanceApiSecret= req.query.binanceApiSecret
@@ -431,7 +435,24 @@ console.log(encryptedbinanceApiSecret)
   })
 
 
+  }
 
+  else{
+
+    var conditions = {userTelegramId: req.query.removeApi};
+    var update = {
+      binance: {
+        apiKey: "?",
+        apiSecret: "?"
+    
+      }
+    }
+  User.findOneAndUpdate(conditions, update, function (err){
+    res.send("Your Binance Api key has successfully been deleted from your bot Account. \n \nClick /addApi to connect your api to this trading bot.")
+    console.log("deleted")
+  })
+
+  }
 
   }
   else{
@@ -461,6 +482,38 @@ res.send(usernameList[idList.indexOf(id)])
 
 })
 })
+
+
+app.get('/binance_api', (req, res) => {
+
+  var telegramId= req.query.id
+  console.log(telegramId)
+
+  var binanceList = []
+  var idList = []
+
+  User.find({}, function (err, users) {
+    for (let x in users) {
+      var userbinance = users[x].binance
+      var userid = users[x].userTelegramId
+
+      binanceList.push(userbinance)
+      idList.push(userid)
+
+    }
+    console.log(binanceList[idList.indexOf(telegramId)]["apiKey"])
+    console.log(binanceList[idList.indexOf(telegramId)]["apiSecret"])
+
+
+    var dencryptedApiKey = encrypter.dencrypt(binanceList[idList.indexOf(telegramId)]["apiKey"]);
+    var dencryptedApiSecret = encrypter.dencrypt(binanceList[idList.indexOf(telegramId)]["apiSecret"]);
+    console.log(dencryptedApiKey)
+    console.log(dencryptedApiSecret)
+
+    res.send([dencryptedApiKey, dencryptedApiSecret])
+  })
+})
+
 
 
 // If the filter condition is empty, it means all

@@ -1,5 +1,7 @@
 
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
+from binance.client import Client
+from binance.exceptions import BinanceAPIException # here
 from datetime import datetime
 # import requests
 # from requests.adapters import HTTPAdapter
@@ -7,10 +9,7 @@ from datetime import datetime
 
 
 
-# app=Flask(__name__)
-# app.config['SECRET_KEY'] = 'any secret string'
-# app.config['SQLALCHEMY_DATABASE_URI']="sqlite:///user.db"
-# app.config['SQLALCHEMY_TRACK_MODIFICATIONS']=False
+app=Flask(__name__)
 
 
 
@@ -18,8 +17,71 @@ from datetime import datetime
 # def front():
 #     return render_template("index.html", today=toon, year=big)
 
-# @app.route('/home')
-# def home():
+@app.route('/balance', methods=('GET', 'POST'))
+def balance():
+    binanceApiKey = request.args.get('binanceApiKey')
+    binanceApiSecret = request.args.get('binanceApiSecret')
+    balanceRequest = request.args.get('balanceRequest')
+
+    client=Client(binanceApiKey,binanceApiSecret)
+    try:
+      if balanceRequest=="all":
+        # print(client.get_account()["balances"])     
+
+        totalBalance=[]
+        finalBalance=[]
+        for x in client.get_account()["balances"]:
+          totalBalance.append(x["free"])
+        for a in totalBalance:
+          if a== "0.00000000":
+            pass
+          else:
+            finalBalance.append(client.get_account()["balances"][totalBalance.index(a)]["asset"] +": "+ a )
+
+        print(str(finalBalance).replace(",", "\n")) 
+        dataBack= str(finalBalance).replace(",", "\n")
+
+    
+
+      elif balanceRequest=="futures":
+        print(client.futures_account_balance())
+
+      elif balanceRequest=="spot":
+        print(client.spot_account_balance())   
+
+      elif balanceRequest=="margin":
+        print(client.get_margin_account()) 
+    except BinanceAPIException as e:
+     print (e.status_code)
+     print (e.message)
+     dataBack= str(e.status_code) + "\n" + e.message     
+
+    return jsonify(dataBack)
+
+
+@app.route('/price', methods=('GET', 'POST'))
+def price():
+  try:
+    binanceApiKey = request.args.get('binanceApiKey')
+    binanceApiSecret = request.args.get('binanceApiSecret')
+    cryptoRequest = request.args.get('cryptoRequest').upper()
+
+    client=Client(binanceApiKey,binanceApiSecret)
+    pairPrice = client.get_symbol_ticker(symbol=cryptoRequest)["price"]
+    print(pairPrice)
+  # except:
+  #   pairPrice="Invalid Trading Pair \n \n click /getPrice to try again."
+
+  except BinanceAPIException as e:
+    print (e.status_code)
+    print (e.message)
+    pairPrice= str(e.status_code) + "\n" + e.message  + "\n \nClick /getPrice to try again."  
+
+  return jsonify(pairPrice)
+
+
+
+
 #     toon=datetime.now().strftime("%d-%m")
 #     big=datetime.now().strftime("%Y")
 #     return render_template("index.html", today=toon, year=big)
@@ -318,9 +380,10 @@ from datetime import datetime
 # #     return render_template("movieshow.html", dis=viv)
 # # 
 
-# if __name__=='__main__':
-#     app.run(debug=True)
-
+if __name__=='__main__':
+    app.run(debug=True)
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=8080)
 
 
 

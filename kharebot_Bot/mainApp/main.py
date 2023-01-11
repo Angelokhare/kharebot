@@ -17,8 +17,11 @@ import re
 # print(services.backend_Api)
 
 import os #provides ways to access the Operating System and allows us to read the environment variables
+from services.config import backend_Api, binance_Api
+
 load_dotenv()
 
+print(backend_Api)
 
   
 # def start(update: Update, context: CallbackContext):
@@ -110,6 +113,10 @@ global binanceApiSecret
 global globalbinanceApiKey
 global globalbinanceApiSecret
 global scanTrade
+global binancePrice
+global binance_future_trade_name
+binance_future_trade_name= "never"
+binancePrice="ready"
 scanTrade="never"
 verifiedUsername="never"
 verifiedPassword="never"
@@ -129,13 +136,7 @@ def help(update: Update, context: CallbackContext):
     verifiedUsername="never"
     binanceApiKey="never"
     binanceApiSecret="never"
-    update.message.reply_text("""Available Commands :-
-    /start - To start bot 🤖 \n
-    /linkAccount - To link account to bot 👌 \n
-    /myAccount -To access User menu
-    /deleteApiKey -To delete User api
-    /logOut -To sign out \n
-    /exitAll -To sign out of all Devices
+    update.message.reply_text("""Available Commands :- \n/start - To start bot 🤖 \n/linkAccount - To link account to bot 👌 \n/myAccount -To access User menu \n/getPrice -To get the prices of coins \n/pasteTrade -To scan trade signals before entry \n/deleteApiKey -To delete User api \n/logOut -To sign out \n/exitAll -To sign out of all Devices
     """)
 
 
@@ -178,7 +179,7 @@ def linkAccount(update: Update, context: CallbackContext):
     binanceApiKey="never"
     binanceApiSecret="never"
     chat_id =  update.message.chat_id
-    url = "https://kharebot-backend.fly.dev/id"
+    url = backend_Api + "/id"
 
     response = request("GET", url)
 
@@ -229,7 +230,7 @@ def exitAll(update: Update, context: CallbackContext):
     verifiedUsername ="never"
 
     chat_id =  update.message.chat_id
-    url = "https://kharebot-backend.fly.dev/signout?globalSignout=" + str(chat_id)
+    url = backend_Api + "/signout?globalSignout=" + str(chat_id)
 
     response = request("GET", url)
 
@@ -256,7 +257,7 @@ def first_menu_one(update,context):
   print(chat_id)
   query = update.callback_query
   query.answer()
-  url = "https://kharebot-backend.fly.dev/id"
+  url = backend_Api + "/id"
 
   response = request("GET", url)
 
@@ -282,14 +283,16 @@ def first_menu_one_keyboard_one():
 
   return InlineKeyboardMarkup(keyboard)
 
-def client_keyboard_one():
-  keyboard = [[InlineKeyboardButton('Check Balance 👉', callback_data='checkBalance')],
-              [InlineKeyboardButton('Transfer 👉', callback_data='transfer')],
-              [InlineKeyboardButton('Live Trade 👉', callback_data='liveTrade')],
-              [InlineKeyboardButton('Manual Trading 👉', callback_data='manualTrading')],
-              [InlineKeyboardButton('Auto Trading 👉', callback_data='autoTrading')],
-              [InlineKeyboardButton('Purchase Airtime 👉', callback_data='purchaseAirtime')],
-              [InlineKeyboardButton('Purchase Data 👉', callback_data='purchaseData')],
+def client_keyboard_binance():
+  keyboard = [[InlineKeyboardButton('Get Price 👉', callback_data='getPrice_binance')],
+             [InlineKeyboardButton('Check Balance 👉', callback_data='checkBalance_binance')],
+             [InlineKeyboardButton('Set Alert 👉', callback_data='setAlert_binance')],
+              [InlineKeyboardButton('Transfer 👉', callback_data='transfer_binance')],
+              [InlineKeyboardButton('Live Trade 👉', callback_data='liveTrade_binance')],
+              [InlineKeyboardButton('Manual Trading 👉', callback_data='manualTrading_binance')],
+              [InlineKeyboardButton('Auto Trading 👉', callback_data='autoTrading_binance')],
+              [InlineKeyboardButton('Purchase Airtime 👉', callback_data='purchaseAirtime_binance')],
+              [InlineKeyboardButton('Purchase Data 👉', callback_data='purchaseData_binance')],
               [InlineKeyboardButton('Sign Out 🚪', callback_data='signout')],
               [InlineKeyboardButton('Back 🔙', callback_data='m11')]
               # [InlineKeyboardButton(cha, callback_data='main')]
@@ -312,7 +315,7 @@ def binance_menu_one(update,context):
   print(chat_id)
   query = update.callback_query
   query.answer()
-  url = "https://kharebot-backend.fly.dev/binance?id=" + str(chat_id)
+  url = backend_Api + "/binance?id=" + str(chat_id)
 
   response = request("GET", url)
 
@@ -321,13 +324,14 @@ def binance_menu_one(update,context):
 
   if response.text=="unaunteticated" :
    binanceApiKey="ready"
-   query.edit_message_text("Don't know how to get your Binance API click <a href='https://www.binance.com/en/support/faq/how-to-create-api-360002502072'>here</a>",parse_mode=ParseMode.HTML)
-   query.edit_message_text("Enter your Binance API Key")
+   query.edit_message_text("Enter your Binance API Key \n \n \n \nDon't know how to get your Binance API click <a href='https://www.binance.com/en/support/faq/how-to-create-api-360002502072'>here</a> ",parse_mode=ParseMode.HTML)
+  #  query.edit_message_text("Enter your Binance API Key")
+  #  query.edit_message_text("Enter your Binance API Key")
   else: 
     binanceApiKey="never" 
     query.edit_message_text(
                         text='Welcome back, ' +  response.text + "👋 \n \nHere are your offers 🔌.", 
-                        reply_markup=client_keyboard_one())  
+                        reply_markup=client_keyboard_binance())  
 
 
 
@@ -349,7 +353,7 @@ def first_menu_one_link(update,context):
   print(chat_id)
   query = update.callback_query
   # query.answer()
-  url = "https://kharebot-backend.fly.dev/id"
+  url = backend_Api + "/id"
 
   response = request("GET", url)
 
@@ -368,8 +372,214 @@ def first_menu_one_link(update,context):
 
 
 
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk          Check Binance Balance
 
 
+
+def check_Binance_Balance(update,context):
+  chat_id = update.callback_query.message.chat.id
+  print(chat_id)
+  query = update.callback_query
+  query.answer()
+  query.edit_message_text(
+                        text="Check your Balance here:-", 
+                        reply_markup=check_Binance_Balance_keyboard())   
+                                       
+
+
+def check_Binance_Balance_keyboard():
+  keyboard = [[InlineKeyboardButton('Overall Balance 👉', callback_data='overallbalance_binance')],
+              [InlineKeyboardButton('Futures Balance 👉', callback_data='futuresbalance_binance')],
+              [InlineKeyboardButton('Spot Balance 👉', callback_data='spotbalance_binance')],
+              [InlineKeyboardButton('Margin Balance 👉', callback_data='marginbalance_binance')],
+                      [InlineKeyboardButton('Back 🔙', callback_data='main')]
+                    ]
+
+  return InlineKeyboardMarkup(keyboard)
+
+def Binance_Back_Balance_keyboard():
+  keyboard = [
+                      [InlineKeyboardButton('Back 🔙', callback_data='binance')]
+                    ]
+
+  return InlineKeyboardMarkup(keyboard)
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk OVERALL BALANCE BINANCE
+def overallbalance_binance(update,context):
+  chat_id = update.callback_query.message.chat.id
+  print(chat_id)
+  query = update.callback_query
+  query.answer()
+  url = backend_Api + "/binance_api?id=" + str(chat_id)
+
+  response = request("GET", url)
+
+  sendApiKey=response.json()[0]
+  sendApiSecret=response.json()[1]
+
+  url = binance_Api + "/balance?binanceApiKey=" + sendApiKey + "&binanceApiSecret=" + sendApiSecret + "&balanceRequest=all"
+
+  response = request("GET", url)
+
+  # print(response.json())
+  query.edit_message_text(text=response.json(),
+                          reply_markup=Binance_Back_Balance_keyboard())   
+                                       
+
+def futuresbalance_binance(update,context):
+  chat_id = update.callback_query.message.chat.id
+  print(chat_id)
+  query = update.callback_query
+  query.answer()
+  url = backend_Api + "/binance_api?id=" + str(chat_id)
+
+  response = request("GET", url)
+
+  sendApiKey=response.json()[0]
+  sendApiSecret=response.json()[1]
+
+  url = binance_Api + "/balance?binanceApiKey=" + sendApiKey + "&binanceApiSecret=" + sendApiSecret + "&balanceRequest=futures"
+
+  response = request("GET", url)
+
+  # print(response.json())
+  query.edit_message_text(
+                        text="Check your Balance here:-", 
+                        reply_markup=check_Binance_Balance_keyboard())   
+
+
+def spotbalance_binance(update,context):
+  chat_id = update.callback_query.message.chat.id
+  print(chat_id)
+  query = update.callback_query
+  query.answer()
+  url = backend_Api + "/binance_api?id=" + str(chat_id)
+
+  response = request("GET", url)
+
+  sendApiKey=response.json()[0]
+  sendApiSecret=response.json()[1]
+
+  url = binance_Api + "/balance?binanceApiKey=" + sendApiKey + "&binanceApiSecret=" + sendApiSecret + "&balanceRequest=spot"
+
+  response = request("GET", url)
+
+  # print(response.json())
+  query.edit_message_text(
+                        text=response.text, 
+                        reply_markup=Binance_Back_Balance_keyboard())                         
+                                       
+
+
+def check_Binance_Balance_keyboard():
+  keyboard = [[InlineKeyboardButton('Overall Balance 👉', callback_data='overallbalance_binance')],
+              [InlineKeyboardButton('Futures Balance 👉', callback_data='futuresbalance_binance')],
+              [InlineKeyboardButton('Spot Balance 👉', callback_data='spotbalance_binance')],
+              [InlineKeyboardButton('Margin Balance 👉', callback_data='marginbalance_binance')],
+                      [InlineKeyboardButton('Back 🔙', callback_data='main')]
+                    ]
+
+  return InlineKeyboardMarkup(keyboard)
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk          Get Prices Of Coins Binance
+
+
+def check_Price_menu_message():
+  return "Select which Trading Account:"
+def check_Price_keyboard():
+  keyboard = [[InlineKeyboardButton('Binance 👉', callback_data='binance_price')],
+              [InlineKeyboardButton('Kucoin 👉', callback_data='kucoin_price')],
+  ]
+  return InlineKeyboardMarkup(keyboard)
+
+
+
+def getPrice_binance_link(update,context):
+  query = update.callback_query
+  # query.answer()
+  chat_id =  update.message.chat_id
+  url = backend_Api + "/id"
+
+  response = request("GET", url)
+
+  print(response.json())
+  # for info in response.json()[0]:
+  print(response.json()[0])
+  if str(chat_id) in response.json()[0]:
+    update.message.reply_text(
+                        text=check_Price_menu_message(),
+                        reply_markup=check_Price_keyboard())
+  else:
+     update.message.reply_text(      
+      "You presently haven't linked your account with the bot. \n \nClick on /linkAccount to sign in."
+     )  
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk   BINANCE PRICE
+def binance_price(update,context):
+  global binancePrice
+  chat_id = update.callback_query.message.chat.id
+  query = update.callback_query
+  query.answer()
+  url = backend_Api + "/binance?id=" + str(chat_id)
+
+  response = request("GET", url)
+
+  # for info in response.json()[0]:
+  print(response.text)
+
+  if response.text=="unaunteticated" :
+   binancePrice="never"
+   query.edit_message_text("You presently don't have an API linked to this bot. \nYou need to link your account to an API to make a request to the server 👍. \nClick on /myAccount to link your Binance API to this trading Bot 🏃‍♂️💨.")
+
+  else: 
+    binancePrice="ready"
+    query.edit_message_text(
+                       "Step 1. \nUse symbols when making a request for example [ ETHUSDT, BTCUSDT, TRXUSDT, XRPUSDT.....] ✔ not [bitcoin or tron or dogecoin] ❌. \n \nStep 2. \nWhen entering trading pair don't leave space or symbols inbetween [BTCUSDT ✔] \n[BTC ETH ❌ BTC~USDT ❌] \n \n \nEnter the trading pair ")  
+
+
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                  ENTER A TRADE MANUAL
+
+def manualTrading_keyboard():
+  keyboard = [[InlineKeyboardButton('Futures 👉', callback_data='futures_manualTrading_binance')],
+              [InlineKeyboardButton('Spot 👉', callback_data='spot_manualTrading_binance')],
+              [InlineKeyboardButton('Margin 👉', callback_data='margin_manualTrading_binance')],
+  ]
+  return InlineKeyboardMarkup(keyboard)
+
+def manualTrading_binance(update,context):
+  chat_id = update.callback_query.message.chat.id
+  print(chat_id)
+  query = update.callback_query
+  query.answer()
+  query.edit_message_text(
+                        text="Select your trading medium:-", 
+                        reply_markup=manualTrading_keyboard())  
+
+
+
+def futures_manualTrading_binance(update,context):
+  global binance_future_trade_name
+  chat_id = update.callback_query.message.chat.id
+  print(chat_id)
+  query = update.callback_query
+  query.answer()
+  # url = backend_Api + "/binance_api?id=" + str(chat_id)
+
+  # response = request("GET", url)
+
+  # sendApiKey=response.json()[0]
+  # sendApiSecret=response.json()[1]
+
+  # url = binance_Api + "/balance?binanceApiKey=" + sendApiKey + "&binanceApiSecret=" + sendApiSecret + "&tradeRequest=futures"
+
+  # response = request("GET", url)
+
+  # print(response.json())
+  binance_future_trade_name="ready"
+  query.edit_message_text(
+                        text="Enter the trading pair e.g[BTCUSDT, ETHUSDT, BNBBUSD.....]", 
+)  
 
 
 
@@ -391,7 +601,7 @@ def signout_keyboard():
 
 
 def signout(update: Update, context: CallbackContext):
-       url = "https://kharebot-backend.fly.dev/signout?id=" + str(update.callback_query.message.chat.id)
+       url = backend_Api+ "/signout?id=" + str(update.callback_query.message.chat.id)
 
        response = request("GET", url)
 
@@ -409,7 +619,7 @@ def signout_menu_link(update,context):
   query = update.callback_query
   # query.answer()
   chat_id =  update.message.chat_id
-  url = "https://kharebot-backend.fly.dev/id"
+  url = backend_Api + "/id"
 
   response = request("GET", url)
 
@@ -478,6 +688,101 @@ def second_menu_message():
   return 'Choose the submenu in second menu:'
 
 
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk          Delete Trading Api
+def  deleteApiKey(update,context):
+  query = update.callback_query
+  # query.answer()
+  print("ooo")
+  chat_id =  update.message.chat_id
+  url = backend_Api + "/id"
+
+  response = request("GET", url)
+
+  print(response.json())
+  # for info in response.json()[0]:
+  print(response.json()[0])
+  if str(chat_id) in response.json()[0]:
+    update.message.reply_text(
+                        text=deleteApi_message(),
+                        reply_markup=deleteApi_keyboard())
+  else:
+     update.message.reply_text(      
+      "You presently haven't linked your account with the bot. \n \nClick on /linkAccount to sign in."
+     )     
+
+
+
+def deleteApi_message():
+  return "Select which trading account:"
+def deleteApi_keyboard():
+  keyboard = [[InlineKeyboardButton('Binance 👉', callback_data='binanceApiDelete')],
+              [InlineKeyboardButton('Kucoin 👉', callback_data='m11')],
+              [InlineKeyboardButton('Back 🔙', callback_data='m11')],
+  ]
+  return InlineKeyboardMarkup(keyboard)
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk               Delete Binance Api
+
+def binanceApiDelete(update,context):
+  query = update.callback_query
+  query.answer()
+  print("ls")
+  chat_id=update.callback_query.message.chat.id
+  url = backend_Api+ "/binance?id=" + str(update.callback_query.message.chat.id)
+
+  response = request("GET", url)
+
+  # print(response.json())
+  if response.text== "unaunteticated":
+      query.edit_message_text("Sorry, you haven't connected your Binance api with this account. \n \nClick /addApi to connect your api to this trading bot.")
+  else:    
+     query.edit_message_text(
+                        text=binanceApiDelete_message(),
+                        reply_markup=binanceApiDelete_keyboard())
+
+
+def binanceApiDelete_message():
+  return "Are you sure you want to delete your Binance Api from this trading bot?"
+def binanceApiDelete_keyboard():
+  keyboard = [[InlineKeyboardButton('Yes ✅', callback_data='yes_binanceApiDelete')],
+              [InlineKeyboardButton('No ❌', callback_data='m11')],
+  ]
+  return InlineKeyboardMarkup(keyboard)
+
+def yes_binanceApiDelete(update,context):
+  query = update.callback_query
+  query.answer()
+
+  chat_id=update.callback_query.message.chat.id
+  url = backend_Api + "/binance?removeApi=" + str(update.callback_query.message.chat.id)
+
+  response = request("GET", url)
+
+  # print(response.json())
+  query.edit_message_text("Your Binance Api key has successfully been deleted from your bot Account. \n \nClick /addApi to connect your api to this trading bot.")
+
+
+
+def pasteTrade_keyboard():
+            keyboard = [[InlineKeyboardButton('Confirm ✔', callback_data='confirmPastedTrade')],
+              [InlineKeyboardButton('Edit 🤔', callback_data='editPastedTrade')],
+                      [InlineKeyboardButton('Decline ❌', callback_data='main')]
+                    ]
+            return InlineKeyboardMarkup(keyboard)
+
+def binance_future_trade_type_keyboard():
+            keyboard = [[InlineKeyboardButton('Cross', callback_data='cross_binance_future_trade_type')],
+              [InlineKeyboardButton('Isolated', callback_data='isolated_binance_future_trade_type')],
+                    ]
+            return InlineKeyboardMarkup(keyboard)  
+
+def binance_future_trade_method_keyboard():
+            keyboard = [[InlineKeyboardButton('Buy / Long', callback_data='buy_binance_future_trade_method')],
+              [InlineKeyboardButton('Short / Sell', callback_data='sell_binance_future_trade_method')],
+                    ]
+            return InlineKeyboardMarkup(keyboard)                  
+
+                 
 
 # kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                                               Not a Valid Command
 
@@ -490,6 +795,39 @@ def unknown(update: Update, context: CallbackContext):
     global binanceApiSecret
     global globalbinanceApiSecret
     global globalbinanceApiKey
+    global binancePrice
+    global global_binance_future_trade_name
+    global global_binance_future_trade_leverage
+    global global_binance_future_trade_type
+    global binance_future_trade_name
+    global binance_future_trade_type
+
+
+def cross_binance_future_trade_type(update,context):    
+    global global_binance_future_trade_type
+    global binance_future_trade_type
+    binance_future_trade_type="ready"
+    global_binance_future_trade_type="cross"
+    query = update.callback_query
+    query.answer()
+    print("ls")
+    chat_id=update.callback_query.message.chat.id
+    query.edit_message_text(
+          text="Enter your leverage e.g[20x, 50x, 70x...]")
+
+def isolated_binance_future_trade_type(update,context):    
+    global global_binance_future_trade_type
+    global binance_future_trade_type
+    binance_future_trade_type="ready"
+    global_binance_future_trade_type="isolated"
+    query = update.callback_query
+    query.answer()
+    print("ls")
+    chat_id=update.callback_query.message.chat.id
+    query.edit_message_text(
+          text="Enter your leverage e.g[20x, 50x, 70x...]")          
+ 
+
 
     # kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk  FOR ACCOUNT LINKING
     if verifiedUsername=="ready":
@@ -501,7 +839,7 @@ def unknown(update: Update, context: CallbackContext):
 
         # import requests
 
-        url = "https://kharebot-backend.fly.dev/testing?email=" + globalUsername + "&password=" + globalPassword + "&id=" + str(update.message.chat_id)
+        url = backend_Api + "/testing?email=" + globalUsername + "&password=" + globalPassword + "&id=" + str(update.message.chat_id)
 
         response = request("GET", url)
 
@@ -523,9 +861,9 @@ def unknown(update: Update, context: CallbackContext):
       if binanceApiSecret=="ready":
         binanceApiKey="never"
         binanceApiSecret="never"
-        globalbinanceApiSecret=update.message.text.lower().strip()
+        globalbinanceApiSecret=update.message.text.strip()
 
-        url = "https://kharebot-backend.fly.dev/binance?binanceApiKey=" + globalbinanceApiKey + "&binanceApiSecret=" + globalbinanceApiSecret + "&idTelegram=" + str(update.message.chat_id)
+        url = backend_Api + "/binance?binanceApiKey=" + globalbinanceApiKey + "&binanceApiSecret=" + globalbinanceApiSecret + "&idTelegram=" + str(update.message.chat_id)
 
         response = request("GET", url)
 
@@ -539,9 +877,44 @@ def unknown(update: Update, context: CallbackContext):
 
       else:
         binanceApiSecret="ready" 
-        globalbinanceApiKey=update.message.text.lower().strip()
+        globalbinanceApiKey=update.message.text.strip()
         update.message.reply_text(
         "Enter your Binance Api Secret")        
+
+    elif binancePrice=="ready":
+      binancePrice="never"
+      chat_id =  update.message.chat_id
+      url = backend_Api + "/binance_api?id=" + str(chat_id)
+
+      response = request("GET", url)
+
+      sendApiKey=response.json()[0]
+      sendApiSecret=response.json()[1]
+
+      url = binance_Api + "/price?binanceApiKey=" + sendApiKey + "&binanceApiSecret=" + sendApiSecret + "&cryptoRequest=" + update.message.text.upper().strip()
+
+      response = request("GET", url)
+
+  # print(response.json())
+      update.message.reply_text(
+        response.json())
+
+    elif binance_future_trade_name=="ready":
+       global_binance_future_trade_name=update.message.text.lower().strip()
+       if binance_future_trade_type=="ready":
+         global_binance_future_trade_leverage=update.message.text.lower().strip()
+         update.message.reply_text(
+          text="Select your Trade method:",
+        reply_markup= binance_future_trade_method_keyboard())
+
+
+       else:
+        update.message.reply_text(
+          text="Select your Trade type:",
+        reply_markup= binance_future_trade_type_keyboard())
+
+
+
 
     elif scanTrade=="ready":
         globalLoss=""
@@ -703,9 +1076,11 @@ def unknown(update: Update, context: CallbackContext):
         # if "usd " in update.message.text.lower():
 
         # if "busd" in update.message.text.lower():
-        update.message.reply_text(globalTradeType + "\nEntry:-" +  globalPrice + "\nStoploss:-" + globalLoss +"\n" + "Position:-" + globalTradePosition + "\n" + "Leverage:-" + globalLeverage + "\nProfit:-" + globalProfit)
+        # scanTrade="never"
+        update.message.reply_text(text=globalTradeType + "\nEntry:-" +  globalPrice + "\nStoploss:-" + globalLoss +"\n" + "Position:-" + globalTradePosition + "\n" + "Leverage:-" + globalLeverage + "\nProfit:-" + globalProfit,
+                        reply_markup=pasteTrade_keyboard())
 
-
+            
 
 
 
@@ -748,7 +1123,7 @@ updater.dispatcher.add_handler(CommandHandler('start', start))
 # kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                                      Link Account
 updater.dispatcher.add_handler(CommandHandler('linkAccount', linkAccount))
 
-# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                                      Link Account
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                                      Exit All
 updater.dispatcher.add_handler(CommandHandler('exitAll', exitAll))
 
 # kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                                  Main Menu
@@ -757,8 +1132,11 @@ updater.dispatcher.add_handler(CallbackQueryHandler(main_menu, pattern='main'))
 # kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                               Help request
 updater.dispatcher.add_handler(CommandHandler('help', help))
 
-# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                               Help request
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                               Paste request
 updater.dispatcher.add_handler(CommandHandler('pasteTrade', pasteCode))
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                               Delete request
+updater.dispatcher.add_handler(CommandHandler('deleteApiKey', deleteApiKey))
 
 
 # kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                               Sign Out
@@ -770,8 +1148,37 @@ updater.dispatcher.add_handler(CommandHandler('logOut', signout_menu_link))
 updater.dispatcher.add_handler(CallbackQueryHandler(first_menu_one, pattern='m11'))
 updater.dispatcher.add_handler(CommandHandler('myAccount', first_menu_one_link))
 
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                          Binance Api Delete
+updater.dispatcher.add_handler(CallbackQueryHandler(binanceApiDelete, pattern='binanceApiDelete'))
+updater.dispatcher.add_handler(CallbackQueryHandler(yes_binanceApiDelete, pattern='yes_binanceApiDelete'))
+
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                          Get Price
+updater.dispatcher.add_handler(CommandHandler('getPrice', getPrice_binance_link))
+updater.dispatcher.add_handler(CallbackQueryHandler(binance_price, pattern='binance_price'))
+
+
+
 # kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                          Binance Click
 updater.dispatcher.add_handler(CallbackQueryHandler(binance_menu_one, pattern='binance'))
+
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                          Binance Manual Trading Check
+updater.dispatcher.add_handler(CallbackQueryHandler(manualTrading_binance, pattern='manualTrading_binance'))
+
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                          Binance Balance Check
+updater.dispatcher.add_handler(CallbackQueryHandler(check_Binance_Balance, pattern='checkBalance_binance'))
+updater.dispatcher.add_handler(CallbackQueryHandler(overallbalance_binance, pattern='overallbalance_binance'))
+updater.dispatcher.add_handler(CallbackQueryHandler(futuresbalance_binance, pattern='futuresbalance_binance'))
+updater.dispatcher.add_handler(CallbackQueryHandler(spotbalance_binance, pattern='spotbalance_binance'))
+
+
+# kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                                          Type of Trade Margin
+updater.dispatcher.add_handler(CallbackQueryHandler(cross_binance_future_trade_type, pattern='cross_binance_future_trade_type'))
+updater.dispatcher.add_handler(CallbackQueryHandler(isolated_binance_future_trade_type, pattern='isolated_binance_future_trade_type'))
+
+
 
 
 updater.dispatcher.add_handler(CallbackQueryHandler(second_menu, pattern='m12'))
@@ -787,5 +1194,4 @@ updater.dispatcher.add_handler(MessageHandler(
 updater.dispatcher.add_handler(MessageHandler(Filters.text, unknown_text))
 
 if __name__ == '__main__':
-
   updater.start_polling()
