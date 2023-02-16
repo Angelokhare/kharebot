@@ -180,7 +180,7 @@ const passwordCall2=()=>{
                    onChange={(event: any) => (setEmailValue(event.target.value.toLowerCase()), changeButtonColor()) }
                     onKeyDown={(event: any) => (setEmailValue(event.target.value.toLowerCase()), changeButtonColor() )} 
                     onKeyUp={(event: any) => (setEmailValue(event.target.value.toLowerCase()), changeButtonColor())} required />
-                    <p style={{ fontSize: "1vw", color: "red", marginTop: "-1%" }} className="languageStructure">{localStorage.getItem('emailValidText')}</p>
+                    <p style={{ color: "red", marginTop: "-1%" }} className="languageStructure  dataValidation">{localStorage.getItem('emailValidText')}</p>
                     <p style={{color: "#000"}} className="coporateLanguage LoginCase">Password:</p>
                     <div className="passwordTogether">
                     <input  type={PasswordVisibility} name="password" id="" className="loginInput" style={{borderRadius:"0"  ,borderRight:"none", borderTopLeftRadius: "5px", borderBottomLeftRadius: "5px"}}   placeholder="Password"  value={PasswordValue}

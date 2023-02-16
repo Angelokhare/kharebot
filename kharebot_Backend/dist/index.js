@@ -122,10 +122,65 @@ var newUser = new mongoose.Schema({
   },
   transactionPin: {
     type: String
+  },
+  cryptoPair:{
+    type: String
   }
 })
 
 var User = new mongoose.model("User", newUser)
+
+
+
+// kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk             ALERT DATABASE
+var newAlert1 = new mongoose.Schema({
+  userTelegramId: {
+    type: String,
+    required: true,
+
+  },
+  TradingPair: {
+    type: String,
+    required: true,
+
+  },
+  duration:{
+    type: String,
+    required: true,
+  },
+  binance: {
+    apiKey: { type: String},
+    apiSecret: { type: String}
+
+  }
+})
+var BinanceAlert = new mongoose.model("Alert", newAlert1)
+
+
+
+
+var tradingPairList = []
+var idList = []
+var durationList=[]
+
+
+BinanceAlert.find({}, function (err, users) {
+  for (let x in users) {
+    var userDuration = users[x].duration
+    var userid = users[x].userTelegramId
+    var userTradingPair= users[x].TradingPair
+
+    durationList.push(userDuration)
+    idList.push(userid)
+    tradingPairList.push(userTradingPair)
+
+  }
+  console.log(tradingPairList)
+  console.log(idList)
+  console.log(durationList)
+
+})
+
 
 
 // kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk                     Sign up       GET
@@ -165,6 +220,7 @@ app.post('/signup', (req, res) => {
     linkName: bodyName.username.toLowerCase(),
     dateJoined: new Date().getTime(),
     userTelegramId: "?",
+    cryptoPair: "?",
   binance: {
     apiKey: "?",
     apiSecret: "?"
@@ -175,7 +231,6 @@ app.post('/signup', (req, res) => {
     apiSecret:"?",
     apiPassphrase: "?"
   }
-
   })
 
   adduser.save(function (err) {
@@ -516,11 +571,161 @@ app.get('/binance_api', (req, res) => {
 
 
 
+// kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk       ALERT
+app.get('/alert', (req, res) => {
+  // var alert= req.query.alert
+  var telegramId= req.query.id
+if (req.query.duration == undefined){
+
+    var binanceList = []
+    var idList=[]
+    var tradingPairList = []
+    var idList = []
+    var durationList=[]
+    
+    
+    BinanceAlert.find({}, function (err, users) {
+      for (let x in users) {
+        var userDuration = users[x].duration
+        var userid = users[x].userTelegramId
+        var userTradingPair= users[x].TradingPair
+        var userBinance= users[x].binance
+
+    
+        durationList.push(userDuration)
+        idList.push(userid)
+        tradingPairList.push(userTradingPair)
+        binanceList.push(userBinance)
+    
+      }
+      console.log(tradingPairList)
+      console.log(idList)
+      console.log(durationList)
+    
+    
+
+    var apiKeyList=[]
+    var ApiSecretList=[]
+    for(let x in binanceList){
+    var dencryptedApiSecret = encrypter.dencrypt(binanceList[x]["apiSecret"]);
+    var dencryptedApiKey = encrypter.dencrypt(binanceList[x]["apiKey"]);
+    console.log(dencryptedApiKey)
+    console.log(dencryptedApiSecret)
+
+    ApiSecretList.push(dencryptedApiSecret)
+    apiKeyList.push(dencryptedApiKey)
+
+    }
+    var nad=["gg", "ksks", "klls"]
+    res.send([ApiSecretList, apiKeyList, idList, tradingPairList, durationList])
+  })
+
+
+}
+else{  
+  console.log("1")
+
+
+  var binanceList = []
+  var idList=[]
+
+  User.find({}, function (err, users) {
+    for (let x in users) {
+      var userbinance = users[x].binance
+      var userid = users[x].userTelegramId
+
+      binanceList.push(userbinance)
+      idList.push(userid)  
+    }
+
+  var apiKeyList=[]
+  var ApiSecretList=[]
+  for(let x in binanceList){
+  var dencryptedApiKey =binanceList[x]["apiKey"];
+  var dencryptedApiSecret =binanceList[x]["apiSecret"];
+
+  apiKeyList.push(dencryptedApiKey)
+  ApiSecretList.push(dencryptedApiSecret)
+
+  }
+
+  const addalert = new BinanceAlert({
+    userTelegramId: req.query.id,
+    TradingPair: req.query.tradingPair,
+    duration: req.query.duration,
+    binance: {
+      apiKey: apiKeyList[idList.indexOf( req.query.id)],
+      apiSecret: ApiSecretList[idList.indexOf( req.query.id)]
+  
+    }
+  
+  })
+  
+  addalert.save(function (err) {
+    if (err) {
+      console.log(err)
+    }
+    else {
+      res.send("Congratulation🥂 \n \nYou have successfully Set an Alert for " + req.query.duration)
+      console.log("2")
+    }
+  })
+
+
+})
+
+
+
+}
+
+})
+
+
+// kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk           Refresh Crypto Price
+app.get('/addprice', (req, res) => {
+  console.log("hello")
+
+if(req.query.requestType=="add"){  
+var priceId= req.query.telegramId
+var priceName= req.query.cryptoName
+
+var conditions = {userTelegramId: priceId};
+var update = { cryptoPair: priceName}
+User.findOneAndUpdate(conditions, update, function (err){
+console.log("added ui")
+res.send("ok")
+})
+}
+else{
+  var cryptoPairList=[]
+  var idList=[]
+  User.find({}, function (err, users) {
+    for (let x in users) {
+      var usercryptoPair = users[x].cryptoPair
+      var userid = users[x].userTelegramId
+
+      cryptoPairList.push(usercryptoPair)
+      idList.push(userid)
+
+}
+console.log(idList.indexOf(req.query.telegramId))
+console.log(cryptoPairList[idList.indexOf(req.query.telegramId)])
+res.send(cryptoPairList[idList.indexOf(req.query.telegramId)])
+
+})
+}
+})
+
+
+
 // If the filter condition is empty, it means all
-// User.remove({}, function ( err ) { 
+// BinanceAlert.remove({}, function ( err ) { 
 //   console .log( "success" );
 // }); 
 
+// User.remove({}, function ( err ) { 
+//   console .log( "success" );
+// }); 
 
 
 

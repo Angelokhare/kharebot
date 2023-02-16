@@ -19,6 +19,7 @@ app=Flask(__name__)
 
 @app.route('/balance', methods=('GET', 'POST'))
 def balance():
+    global dataBack
     binanceApiKey = request.args.get('binanceApiKey')
     binanceApiSecret = request.args.get('binanceApiSecret')
     balanceRequest = request.args.get('balanceRequest')
@@ -44,7 +45,9 @@ def balance():
     
 
       elif balanceRequest=="futures":
-        print(client.futures_account_balance())
+        # print(client.futures_account_balance())
+        dataBack = [float(client.futures_account_balance()[6]['balance'])]
+        print([dataBack])
 
       elif balanceRequest=="spot":
         print(client.spot_account_balance())   
@@ -54,7 +57,10 @@ def balance():
     except BinanceAPIException as e:
      print (e.status_code)
      print (e.message)
-     dataBack= str(e.status_code) + "\n" + e.message     
+     if e.message=="API-key format invalid.":
+       dataBack= str(e.status_code) + "Error‼ \nYou used an invalid API key during registration 🤔. \nClick on /deleteApiKey to remove and add a new API key 🏃‍♂️💨."
+     else: 
+       dataBack= str(e.status_code) + "\n" + e.message     
 
     return jsonify(dataBack)
 
@@ -69,6 +75,7 @@ def price():
     client=Client(binanceApiKey,binanceApiSecret)
     pairPrice = client.get_symbol_ticker(symbol=cryptoRequest)["price"]
     print(pairPrice)
+    return jsonify([pairPrice, 200])
   # except:
   #   pairPrice="Invalid Trading Pair \n \n click /getPrice to try again."
 
@@ -76,8 +83,214 @@ def price():
     print (e.status_code)
     print (e.message)
     pairPrice= str(e.status_code) + "\n" + e.message  + "\n \nClick /getPrice to try again."  
+    if e.message=="API-key format invalid.":
+      pairPrice= str(e.status_code) + " Error‼ \nYou used an invalid API key during registration 🤔. \nClick on /deleteApiKey to remove and add a new API key 🏃‍♂️💨."
+      return jsonify([pairPrice, 404 ])
+    else:
+      pairPrice= str(e.status_code) + "\n" + e.message  + "\n \nClick /getPrice to try again."     
+      return jsonify([pairPrice, 404])  
 
-  return jsonify(pairPrice)
+
+
+
+
+@app.route('/futures_trade', methods=('GET', 'POST'))
+def futures_trade():
+  print("ttt")
+  global tradeResult
+  global futureBalance
+  try:
+    binanceApiKey = request.args.get('binanceApiKey')
+    binanceApiSecret = request.args.get('binanceApiSecret')
+    tradingPair = request.args.get('tradingPair').upper()
+    type = request.args.get('type').upper()
+    quantity = request.args.get('quantity')
+    takeProfit = request.args.get('takeProfit')
+    stopLoss = request.args.get('stopLoss')
+    entry = request.args.get('entry')
+    leverage = request.args.get('leverage').strip()
+    margin = request.args.get('margin')
+    market = request.args.get('market').upper()
+
+
+
+
+
+    
+
+    client=Client(binanceApiKey,binanceApiSecret)
+    print(client.futures_get_position_mode())
+
+
+ 
+    if market=="BUY":
+      refMarket="SELL"
+    else:
+      refMarket="BUY"                    
+
+    if margin == "Cross":
+       marginTest= 'FALSE'
+    else:
+      marginTest='TRUE'   
+
+              
+    if entry=="Market price":
+      tradeEntry=""
+      tradeTitle="MARKET"
+      limit_order_long = client.futures_create_order(
+    symbol=tradingPair,
+    side=market,
+    type=tradeTitle,
+    Position__side= type,
+    quantity=quantity,
+)
+      print(limit_order_long)
+
+
+      if takeProfit != "None":
+
+        sell_gain_market_long = client.futures_create_order(
+    symbol=tradingPair,
+    side=refMarket,
+    type='LIMIT',
+    quantity=quantity,
+    price= takeProfit
+    # stopPrice=takeProfit,
+    # closePosition=True,
+    # reduceOnly= True
+)
+        print(sell_gain_market_long)  
+
+      if stopLoss != "None":
+        sell_stop_market_short = client.futures_create_order(
+      symbol=tradingPair,
+    side=refMarket,
+    type='LIMIT',
+    quantity=quantity,
+    # stopPrice=stopLoss,
+    price=stopLoss
+    # closePosition= True,
+    # ReduceOnly= True
+)
+      print(sell_stop_market_short)
+
+    else:
+      tradeTitle='LIMIT'
+      tradeEntry=entry
+      limit_order_long = client.futures_create_order(
+    symbol=tradingPair,
+    side=market,
+    type=tradeTitle,
+    Position__side= type,
+    quantity=quantity,
+    isIsolated=marginTest,
+    timeInForce='GTC',
+    price=tradeEntry,
+)
+      print(limit_order_long)
+
+
+
+      if takeProfit != "None":
+
+        sell_gain_market_long = client.futures_create_order(
+    symbol=tradingPair,
+    side=refMarket,
+    type='TAKE_PROFIT_MARKET',
+    quantity=quantity,
+    stopPrice=takeProfit,
+    closePosition=True,
+    reduceOnly= True
+)
+        print(sell_gain_market_long)  
+
+      if stopLoss != "None":
+        sell_stop_market_short = client.futures_create_order(
+      symbol=tradingPair,
+    side=refMarket,
+    type='STOP_MARKET',
+    quantity=quantity,
+    stopPrice=stopLoss,
+    closePosition= True,
+    ReduceOnly= True
+)
+      print(sell_stop_market_short)
+
+
+    global futureBalance
+    print(leverage.strip()[0:-1])
+    result = client.futures_change_leverage(symbol=tradingPair, leverage=float(leverage.strip()[0:-1])) 
+
+
+
+
+    global futureBalance
+    print(leverage.strip()[0:-1])
+    result = client.futures_change_leverage(symbol=tradingPair, leverage=float(leverage.strip()[0:-1]))     
+    tradeResult="Your trade was entered successfully 🏃‍♂️💨."
+    print(tradeResult)
+    return jsonify(tradeResult)
+  except BinanceAPIException as e:
+    print (e.status_code)
+    print (e.message)
+    if e.message=="API-key format invalid.":
+      tradeResult= str(e.status_code) + " Error‼ \nYou used an invalid API key during registration 🤔. \nClick on /deleteApiKey to remove and add a new API key 🏃‍♂️💨."
+      return jsonify(tradeResult)
+
+    elif e.message=="Margin is insufficient.": 
+      if "usdt" in tradingPair.lower(): 
+        futureBalance = float(client.futures_account_balance()[6]['balance'])
+      elif "busd" in tradingPair.lower(): 
+        futureBalance = float(client.futures_account_balance()[8]['balance'] )
+      cryptoPrice = client.get_symbol_ticker(symbol=tradingPair)["price"]
+
+      print((futureBalance * 20)/float(cryptoPrice)) 
+      print(leverage.strip()[0:-1])
+      tradeResult= "You have insufficient Margin balance to complete this trade \nThe quantity of " + tradingPair + " required to complete this trade is " + str((futureBalance* float(leverage.strip()[0:-1]))/float(cryptoPrice) )
+      print(tradeResult)  
+      return jsonify(tradeResult)
+
+    elif e.message=="Invalid symbol.": 
+      tradeResult= tradingPair + " is an Invalid symbol"
+      return jsonify(tradeResult)    
+    elif e.message=="Quantity greater than max quantity.": 
+      tradeResult= "The quantity entered is greater than max quantity required to enter this trade 😨."
+      return jsonify(tradeResult) 
+
+    else:
+      return jsonify(e.message) 
+               
+
+
+@app.route('/alert', methods=('GET', 'POST'))
+def alert():
+  try:
+    binanceApiKey = request.args.get('binanceApiKey')
+    binanceApiSecret = request.args.get('binanceApiSecret')
+
+    client=Client(binanceApiKey,binanceApiSecret)
+    pairPrice = client.get_all_tickers()
+    cryptoList=[]
+    for x in pairPrice:
+      cryptoList.append(x["symbol"] + ":-%20" + str(x["price"]))
+      # print(x["symbol"] + ":- " + x["price"])
+    print(str(cryptoList).replace(", ", "\n")[1: -1].replace("'", ""))  
+    return jsonify(str(cryptoList).replace(", ", "%0A")[1: -1].replace("'", ""))
+
+  # except:
+  #   pairPrice="Invalid Trading Pair \n \n click /getPrice to try again."
+
+  except BinanceAPIException as e:
+    print (e.status_code)
+    print (e.message)
+    pairPrice= str(e.status_code) + "\n" + e.message  + "\n \nClick /getPrice to try again."  
+    return jsonify(pairPrice)
+
+  
+
+
+    # pairPrice= str(e.status_code) + "\n" + e.message  + "\n \nClick /getPrice to try again."  
+
 
 
 
