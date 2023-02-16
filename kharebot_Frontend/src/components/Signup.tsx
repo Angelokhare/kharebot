@@ -372,7 +372,7 @@ const emailValidity = (event: any) => {
                         onInput={(event: any) => event.target.value.replace(/[^a-zA-Z0-9 ]/gm, '')}
                         onPaste={(event: any) => event.target.value.replace(/[^a-zA-Z0-9 ]/gm, '')}
                         required />
-                    <p style={{ fontSize: "1vw", color: "red", marginTop: "-1%" }}className="languageStructure">{UsernameKey + localStorage.getItem('usernameText')}</p>
+                    <p style={{color: "red", marginTop: "-1%" }}className="languageStructure dataValidation">{UsernameKey + localStorage.getItem('usernameText')}</p>
                     <p style={{ color: "#000" }} className="coporateLanguage LoginCase">Password:</p>
                     <div className="passwordTogether">
                         <input type={PasswordVisibility} name="password" id="" className="loginInput" style={{ borderRadius: "0", borderRight: "none", borderTopLeftRadius: "5px", borderBottomLeftRadius: "5px" }} placeholder="Password" value={PasswordValue}
@@ -385,7 +385,7 @@ const emailValidity = (event: any) => {
                         <button type="button" style={{ marginTop: "-0.7vw", marginBottom: "1vw", borderLeft: "none", cursor: "pointer", backgroundColor: "#fff", marginRight: "1.5vw", borderRadius: "0px 5px 5px 0px", display: (SecondButton) }} onClick={passwordCall2} className="visibleClass"><img style={{ width: "1.5vw" }} src="../visible.png" alt="" /></button>
 
                     </div>
-                    <p style={{ fontSize: "1vw", color: "red", marginTop: "-1%" }} className="languageStructure">{PasswordLength + localStorage.getItem('passwordText')}</p>
+                    <p style={{ color: "red", marginTop: "-1%" }} className="languageStructure dataValidation">{PasswordLength + localStorage.getItem('passwordText')}</p>
                     <br />
                     <input type={"checkbox"} required />
 
